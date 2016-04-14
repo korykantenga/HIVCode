@@ -22,6 +22,7 @@ program main
     qincome  = 500.0
     mcost    = 100.0
     ppref    = 7.5
+    lpref    = 7.0
     AAIDS    = 5.0
 
     oomega_p = 0.5

@@ -1,6 +1,6 @@
 MODULE mod_globalvar
 
-IMPLICIT NONE
+    IMPLICIT NONE
 
     ! All parameters are quarterly
 
@@ -14,6 +14,7 @@ IMPLICIT NONE
     DOUBLE PRECISION ggamma_b ! Unprotected sex transmission rate
 
     DOUBLE PRECISION ppref    ! Preference for protected sex
+    DOUBLE PRECISION lpref    ! Preference for unprotected sex in LT relationship
 
     DOUBLE PRECISION nnu_b    ! Prevalence rate in unprotected sex market
     DOUBLE PRECISION nnu_p    ! Prevalence rate in protected sex market

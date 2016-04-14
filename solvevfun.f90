@@ -9,39 +9,67 @@ SUBROUTINE solvevfun
     USE mod_globalvar
     IMPLICIT NONE
 
-
+    !vf_expost_bl(vfun,wfun,pmap,bmap)
 
 END SUBROUTINE solvevfun
 
 !------------------------------------------------------------------------------
 ! Solve Ex-Post Long-Term Value Functions
 !------------------------------------------------------------------------------
-! d = bbeta, z = l
-SUBROUTINE vf_expost_bl(vfun,wfun,smap)
-!Input W_s^bbeta(0,x)
+! d = bbeta or iiota, z = l
+SUBROUTINE vf_expost_l(vfun_bl,vfun_il,wfun_b,wfun_i,pmap,bmap)
+    !Input: W_s^bbeta(0,x), W_s^iiota(0,x)
 
     USE mod_globalvar
     IMPLICIT NONE
 
-    INTEGER smap
-    DOUBLE PRECISION, INTENT(in) :: wfun(smap)
-    DOUBLE PRECISION, INTENT(out) :: vfun(2,2,smap)
-    DOUBLE PRECISION
+    INTEGER bmap,pmap
+    DOUBLE PRECISION, INTENT(in) :: wfun_b(pmap,bmap),wfun_i(pmap,bmap)
+    DOUBLE PRECISION, INTENT(out) :: vfun_bl(2,2,bmap),vfun_il(2,2,bmap)
+    DOUBLE PRECISION uut
+    DOUBLE PRECISION vhelp1(bmap),chelp1,vhelp2(bmap),chelp2
+    DOUBLE PRECISION vhelp3(bmap),chelp3,chelp4
 
-    vfun(1,1,:) =
 
+    !V_l^bbeta(0,0,x)
+    CALL util(uut,qincome-mcost)
+    vhelp1 = aalphapr*AAIDS + (1.0-xxi)*(aalphapr*(1.0-aalphapr)*wfun_b(1,:)) + &
+        xxi*((1.0-aalphapr)*wfun_b(1,:))
+    chelp1 = 1.0-bbeta*(1.0-xxi)*((1.0-aalphapr)**2)
 
-END SUBROUTINE vf_expost_bl
-! d = iiota, z = l
-SUBROUTINE vf_expost_il(vfun,wfunb,wfuni,smap)
-!Input W_s^bbeta(0,x), W_s^iiota(0,x)
+    vfun_bl(1,1,:) = (uut + ppref + bbeta*vhelp1)/(chelp1)
 
-END SUBROUTINE vf_expost_il
+    !V_l^bbeta(1,0,x)
+    CALL util(uut,qincome)
+    vhelp2 = (1.0-ggamma_p)*aalpha*AAIDS + (1.0-xxi)*((1.0-ggamma_p)*(1.0-aalpha)*(1.0-aalphapr)*vfun_bl(1,1,:) + &
+        aalphapr*ggamma_p*wfun_b(pmap,:) + aalphapr*(1.0-aalpha)*(1.0-ggamma_p)*wfun_b(1,:)) + &
+        xxi*((1.0-aalpha)*(1.0-ggamma_p)*wfun_b(1,:) + ggamma_p*wfun_b(pmap,:))
+    chelp2 = 1.0 - bbeta*(1.0-xxi)*((1.0-aalphapr)*ggamma_p)
+
+    vfun_bl(2,1,:) = (uut + ppref + bbeta*vhelp2)/(chelp2)
+
+    !V_l^bbeta(0,1,x)
+    CALL util(uut,qincome-mcost)
+    vhelp3 = aalphapr*AAIDS + (1.0-xxi)*((1.0-ggamma_p)*(1.0-aalpha)*(1.0-aalphapr)*vfun_bl(1,1,:) + &
+        (1.0-aalphapr)*(aalpha*(1.0-ggamma_p))*wfun_b(pmap,:) + aalphapr*(1.0-aalpha)*(1.0-ggamma_p)*wfun_b(1,:)) + &
+        xxi*(1.0-aalphapr)*wfun_b(pmap,:)
+    chelp3 = 1.0 - bbeta*(1.0-xxi)*((1.0-aalphapr)*ggamma_p)
+
+    vfun_bl(1,2,:) = (uut + ppref + bbeta*vhelp3)/(chelp3)
+
+    !V_l^bbeta(1,1,x)
+    CALL util(uut,qincome)
+    chelp4 = 1.0 - bbeta*(1.0-xxi)
+
+    vfun_bl(2,2,:) = (uut + lpref + xxi*bbeta*wfun_b(pmap,:))/chelp4
+
+END SUBROUTINE vf_expost_l
 
 !------------------------------------------------------------------------------
 ! Solve Policy Functions using FOC and Corner Solution
 !------------------------------------------------------------------------------
 SUBROUTINE solvepolicyfun_p(policy_p,vfun_a,vfun_p,smap)
+    !Input: Vectorized Value Functions
 
     USE mod_globalvar
     IMPLICIT NONE
@@ -67,6 +95,7 @@ SUBROUTINE solvepolicyfun_p(policy_p,vfun_a,vfun_p,smap)
 END SUBROUTINE solvepolicyfun_p
 
 SUBROUTINE solvepolicyfun_b(policy_b,vfun_a,vfun_b,smap)
+    !Input: Vectorized Value Functions
 
     USE mod_globalvar
     IMPLICIT NONE
