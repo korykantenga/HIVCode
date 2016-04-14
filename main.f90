@@ -21,8 +21,11 @@ program main
     xxi      = 0.03
     qincome  = 500.0
     mcost    = 100.0
-    ppref    = 7.5
-    lpref    = 7.0
+    ppref_o  = 9.0
+    ppref_y  = 6.5
+    lpref_o  = 8.0
+    lpref_y  = 7.0
+
     AAIDS    = 5.0
 
     oomega_p = 0.5

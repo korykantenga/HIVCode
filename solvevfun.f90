@@ -40,7 +40,7 @@ SUBROUTINE vf_expost_l(vfun_bl,vfun_il,wfun_b,wfun_i,pmap,bmap)
         xxi*((1.0-aalphapr)*wfun_b(1,:))
     chelp1 = 1.0-bbeta*(1.0-xxi)*((1.0-aalphapr)**2)
 
-    vfun_bl(1,1,:) = (uut + ppref + bbeta*vhelp1)/(chelp1)
+    vfun_bl(1,1,:) = (uut + ppref_o + bbeta*vhelp1)/(chelp1)
 
     !V_l^bbeta(1,0,x)
     CALL util(uut,qincome)
@@ -49,22 +49,65 @@ SUBROUTINE vf_expost_l(vfun_bl,vfun_il,wfun_b,wfun_i,pmap,bmap)
         xxi*((1.0-aalpha)*(1.0-ggamma_p)*wfun_b(1,:) + ggamma_p*wfun_b(pmap,:))
     chelp2 = 1.0 - bbeta*(1.0-xxi)*((1.0-aalphapr)*ggamma_p)
 
-    vfun_bl(2,1,:) = (uut + ppref + bbeta*vhelp2)/(chelp2)
+    vfun_bl(2,1,:) = (uut + ppref_o + bbeta*vhelp2)/(chelp2)
 
     !V_l^bbeta(0,1,x)
     CALL util(uut,qincome-mcost)
     vhelp3 = aalphapr*AAIDS + (1.0-xxi)*((1.0-ggamma_p)*(1.0-aalpha)*(1.0-aalphapr)*vfun_bl(1,1,:) + &
-        (1.0-aalphapr)*(aalpha*(1.0-ggamma_p))*wfun_b(pmap,:) + aalphapr*(1.0-aalpha)*(1.0-ggamma_p)*wfun_b(1,:)) + &
-        xxi*(1.0-aalphapr)*wfun_b(pmap,:)
+                aalpha*(1.0-aalphapr)*(1.0-ggamma_p)*wfun_b(1,:)) + &
+                xxi*(1.0-aalphapr)*wfun_b(1,:)
     chelp3 = 1.0 - bbeta*(1.0-xxi)*((1.0-aalphapr)*ggamma_p)
 
-    vfun_bl(1,2,:) = (uut + ppref + bbeta*vhelp3)/(chelp3)
+    vfun_bl(1,2,:) = (uut + ppref_o + bbeta*vhelp3)/(chelp3)
 
     !V_l^bbeta(1,1,x)
     CALL util(uut,qincome)
     chelp4 = 1.0 - bbeta*(1.0-xxi)
 
-    vfun_bl(2,2,:) = (uut + lpref + xxi*bbeta*wfun_b(pmap,:))/chelp4
+    vfun_bl(2,2,:) = (uut + lpref_o + xxi*bbeta*wfun_b(pmap,:))/chelp4
+
+    !---------------------------------------------------------------------
+
+    !V_l^iiota(0,0,x)
+    CALL util(uut,qincome-mcost)
+    vhelp1 = aalphapr*AAIDS + &
+        (1.0-xxi)*(aalphapr*(1.0-aalphapr)*(eeta*wfun_b(1,:)+(1.0-eeta)*wfun_i(1,:)) + &
+        ((1.0-aalphapr)**2)*vfun_bl(1,1,:)) + &
+        xxi*((1.0-aalphapr)*(eeta*wfun_b(1,:)+(1.0-eeta)*wfun_i(1,:)))
+    chelp1 = 1.0-iiota*(1.0-xxi)*(1.0-eeta)*((1.0-aalphapr)**2)
+
+    vfun_il(1,1,:) = (uut + ppref_y + iiota*vhelp1)/(chelp1)
+
+    !V_l^iiota(1,0,x)
+    CALL util(uut,qincome)
+    vhelp2 = (1.0-ggamma_p)*aalpha*AAIDS + (1.0-xxi)*eeta*(1.0-aalphapr)*ggamma_p*vfun_bl(2,1,:) + &
+                (1.0-xxi)*((1.0-ggamma_p)*(1.0-aalpha)*(1.0-aalphapr)*(eeta*vfun_bl(1,1,:) + &
+                (1.0-eeta)*vfun_il(1,1,:)) + &
+                aalphapr*ggamma_p*(eeta*wfun_b(pmap,:)+(1.0-eeta)*wfun_i(pmap,:)) + &
+                aalphapr*(1.0-aalpha)*(1.0-ggamma_p)*(wfun_b(1,:)*eeta+(1.0-eeta)*wfun_i(1,:))) + &
+                xxi*((1.0-aalpha)*(1.0-ggamma_p)*(eeta*wfun_b(1,:)+(1.0-eeta)*wfun_i(1,:)) + &
+                ggamma_p*(eeta*wfun_b(pmap,:)+(1.0-eeta)*wfun_i(pmap,:)))
+    chelp2 = 1.0 - iiota*(1.0-xxi)*(1.0-eeta)*((1.0-aalphapr)*ggamma_p)
+
+    vfun_il(2,1,:) = (uut + ppref_y + iiota*vhelp2)/(chelp2)
+
+    !V_l^iiota(0,1,x)
+    CALL util(uut,qincome-mcost)
+    vhelp3 = aalphapr*AAIDS + (1.0-xxi)*((1.0-aalphapr)*ggamma_p*eeta*vfun_bl(1,2,:) + &
+                (1.0-ggamma_p)*(1.0-aalpha)*(1.0-aalphapr)*(eeta*vfun_bl(1,1,:)+ &
+                (1.0-eeta)*vfun_il(1,1,:)) + &
+                aalpha*(1.0-aalphapr)*(1.0-ggamma_p)*(eeta*wfun_b(1,:)+(1.0-eeta)*wfun_i(1,:))) + &
+                xxi*(1.0-aalphapr)*(eeta*wfun_b(1,:)+(1.0-eeta)*wfun_i(1,:))
+    chelp3 = 1.0 - iiota*(1.0-xxi)*(1.0-eeta)*(1.0-aalphapr)*ggamma_p
+
+    vfun_il(1,2,:) = (uut + ppref_y + iiota*vhelp3)/(chelp3)
+
+    !V_l^iiota(1,1,x)
+    CALL util(uut,qincome)
+    chelp4 = 1.0 - iiota*(1.0-eeta)*(1.0-xxi)
+
+    vfun_il(2,2,:) = (uut + lpref_y + iiota*eeta*(1.0-xxi)*vfun_bl(2,2,:) + &
+                     xxi*iiota*(eeta*wfun_b(pmap,:)+(1.0-eeta)*wfun_i(pmap,:)))/chelp4
 
 END SUBROUTINE vf_expost_l
 

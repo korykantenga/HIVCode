@@ -13,8 +13,10 @@ MODULE mod_globalvar
     DOUBLE PRECISION ggamma_p ! Protected sex transmission rate
     DOUBLE PRECISION ggamma_b ! Unprotected sex transmission rate
 
-    DOUBLE PRECISION ppref    ! Preference for protected sex
-    DOUBLE PRECISION lpref    ! Preference for unprotected sex in LT relationship
+    DOUBLE PRECISION ppref_o  ! Preference for protected sex
+    DOUBLE PRECISION ppref_y  ! Preference for protected sex
+    DOUBLE PRECISION lpref_o  ! Preference for unprotected in LT relationship (old)
+    DOUBLE PRECISION lpref_y  ! Preference for unprotected in LT relationship (young)
 
     DOUBLE PRECISION nnu_b    ! Prevalence rate in unprotected sex market
     DOUBLE PRECISION nnu_p    ! Prevalence rate in protected sex market
