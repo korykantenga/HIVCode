@@ -9,7 +9,8 @@ SUBROUTINE solvevfun
     USE mod_globalvar
     IMPLICIT NONE
 
-    !vf_expost_bl(vfun,wfun,pmap,bmap)
+    !Solve for Ex-Post Long-Term Value Functions given W_s^bbeta(pphi,x), W_s^iiota(pphi,x)
+    !vf_expost_l(vfun_bl,vfun_il,wfun_b,wfun_i,pmap,bmap)
 
 END SUBROUTINE solvevfun
 
@@ -18,7 +19,9 @@ END SUBROUTINE solvevfun
 !------------------------------------------------------------------------------
 ! d = bbeta or iiota, z = l
 SUBROUTINE vf_expost_l(vfun_bl,vfun_il,wfun_b,wfun_i,pmap,bmap)
-    !Input: W_s^bbeta(0,x), W_s^iiota(0,x)
+    !Input: W_s^bbeta(pphi,x), W_s^iiota(pphi,x)
+    !Output: V_l^bbeta(pphi,varpphi,x)
+    !dim(pphi)=pmap,dim(x)=bmap
 
     USE mod_globalvar
     IMPLICIT NONE
