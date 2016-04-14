@@ -10,7 +10,16 @@ SUBROUTINE solvevfun
     IMPLICIT NONE
 
     !Solve for Ex-Post Long-Term Value Functions given W_s^bbeta(pphi,x), W_s^iiota(pphi,x)
+
+    !Ex-Post LT
     !vf_expost_l(vfun_bl,vfun_il,wfun_b,wfun_i,pmap,bmap)
+
+    !Ex-Ante LT
+    !vf_expost_l(vfun_bl,vfun_il,wfun_b,wfun_i,pmap,bmap)
+
+    !Ex-Post ST
+
+    !Ex-Ante ST + Policy Function
 
 END SUBROUTINE solvevfun
 
@@ -19,9 +28,10 @@ END SUBROUTINE solvevfun
 !------------------------------------------------------------------------------
 ! d = bbeta or iiota, z = l
 SUBROUTINE vf_expost_l(vfun_bl,vfun_il,wfun_b,wfun_i,pmap,bmap)
-    !Input: W_s^bbeta(pphi,x), W_s^iiota(pphi,x)
-    !Output: V_l^bbeta(pphi,varpphi,x)
-    !dim(pphi)=pmap,dim(x)=bmap
+
+    !Input  : W_s^bbeta(pphi,x), W_s^iiota(pphi,x)
+    !Output : V_l^bbeta(pphi,varpphi,x)
+    !dim(pphi) = pmap, dim(x) = bmap
 
     USE mod_globalvar
     IMPLICIT NONE
@@ -54,8 +64,8 @@ SUBROUTINE vf_expost_l(vfun_bl,vfun_il,wfun_b,wfun_i,pmap,bmap)
     !V_l^bbeta(0,1,x)
     CALL util(uut,qincome-mcost)
     vhelp3 = aalphapr*AAIDS + (1.0-xxi)*((1.0-ggamma_p)*(1.0-aalpha)*(1.0-aalphapr)*vfun_bl(1,1,:) + &
-                aalpha*(1.0-aalphapr)*(1.0-ggamma_p)*wfun_b(1,:)) + &
-                xxi*(1.0-aalphapr)*wfun_b(1,:)
+        aalpha*(1.0-aalphapr)*(1.0-ggamma_p)*wfun_b(1,:)) + &
+        xxi*(1.0-aalphapr)*wfun_b(1,:)
     chelp3 = 1.0 - bbeta*(1.0-xxi)*((1.0-aalphapr)*ggamma_p)
 
     vfun_bl(1,2,:) = (uut + ppref_o + bbeta*vhelp3)/(chelp3)
@@ -81,12 +91,12 @@ SUBROUTINE vf_expost_l(vfun_bl,vfun_il,wfun_b,wfun_i,pmap,bmap)
     !V_l^iiota(1,0,x)
     CALL util(uut,qincome)
     vhelp2 = (1.0-ggamma_p)*aalpha*AAIDS + (1.0-xxi)*eeta*(1.0-aalphapr)*ggamma_p*vfun_bl(2,1,:) + &
-                (1.0-xxi)*((1.0-ggamma_p)*(1.0-aalpha)*(1.0-aalphapr)*(eeta*vfun_bl(1,1,:) + &
-                (1.0-eeta)*vfun_il(1,1,:)) + &
-                aalphapr*ggamma_p*(eeta*wfun_b(pmap,:)+(1.0-eeta)*wfun_i(pmap,:)) + &
-                aalphapr*(1.0-aalpha)*(1.0-ggamma_p)*(wfun_b(1,:)*eeta+(1.0-eeta)*wfun_i(1,:))) + &
-                xxi*((1.0-aalpha)*(1.0-ggamma_p)*(eeta*wfun_b(1,:)+(1.0-eeta)*wfun_i(1,:)) + &
-                ggamma_p*(eeta*wfun_b(pmap,:)+(1.0-eeta)*wfun_i(pmap,:)))
+        (1.0-xxi)*((1.0-ggamma_p)*(1.0-aalpha)*(1.0-aalphapr)*(eeta*vfun_bl(1,1,:) + &
+        (1.0-eeta)*vfun_il(1,1,:)) + &
+        aalphapr*ggamma_p*(eeta*wfun_b(pmap,:)+(1.0-eeta)*wfun_i(pmap,:)) + &
+        aalphapr*(1.0-aalpha)*(1.0-ggamma_p)*(wfun_b(1,:)*eeta+(1.0-eeta)*wfun_i(1,:))) + &
+        xxi*((1.0-aalpha)*(1.0-ggamma_p)*(eeta*wfun_b(1,:)+(1.0-eeta)*wfun_i(1,:)) + &
+        ggamma_p*(eeta*wfun_b(pmap,:)+(1.0-eeta)*wfun_i(pmap,:)))
     chelp2 = 1.0 - iiota*(1.0-xxi)*(1.0-eeta)*((1.0-aalphapr)*ggamma_p)
 
     vfun_il(2,1,:) = (uut + ppref_y + iiota*vhelp2)/(chelp2)
@@ -94,10 +104,10 @@ SUBROUTINE vf_expost_l(vfun_bl,vfun_il,wfun_b,wfun_i,pmap,bmap)
     !V_l^iiota(0,1,x)
     CALL util(uut,qincome-mcost)
     vhelp3 = aalphapr*AAIDS + (1.0-xxi)*((1.0-aalphapr)*ggamma_p*eeta*vfun_bl(1,2,:) + &
-                (1.0-ggamma_p)*(1.0-aalpha)*(1.0-aalphapr)*(eeta*vfun_bl(1,1,:)+ &
-                (1.0-eeta)*vfun_il(1,1,:)) + &
-                aalpha*(1.0-aalphapr)*(1.0-ggamma_p)*(eeta*wfun_b(1,:)+(1.0-eeta)*wfun_i(1,:))) + &
-                xxi*(1.0-aalphapr)*(eeta*wfun_b(1,:)+(1.0-eeta)*wfun_i(1,:))
+        (1.0-ggamma_p)*(1.0-aalpha)*(1.0-aalphapr)*(eeta*vfun_bl(1,1,:)+ &
+        (1.0-eeta)*vfun_il(1,1,:)) + &
+        aalpha*(1.0-aalphapr)*(1.0-ggamma_p)*(eeta*wfun_b(1,:)+(1.0-eeta)*wfun_i(1,:))) + &
+        xxi*(1.0-aalphapr)*(eeta*wfun_b(1,:)+(1.0-eeta)*wfun_i(1,:))
     chelp3 = 1.0 - iiota*(1.0-xxi)*(1.0-eeta)*(1.0-aalphapr)*ggamma_p
 
     vfun_il(1,2,:) = (uut + ppref_y + iiota*vhelp3)/(chelp3)
@@ -107,9 +117,74 @@ SUBROUTINE vf_expost_l(vfun_bl,vfun_il,wfun_b,wfun_i,pmap,bmap)
     chelp4 = 1.0 - iiota*(1.0-eeta)*(1.0-xxi)
 
     vfun_il(2,2,:) = (uut + lpref_y + iiota*eeta*(1.0-xxi)*vfun_bl(2,2,:) + &
-                     xxi*iiota*(eeta*wfun_b(pmap,:)+(1.0-eeta)*wfun_i(pmap,:)))/chelp4
+        xxi*iiota*(eeta*wfun_b(pmap,:)+(1.0-eeta)*wfun_i(pmap,:)))/chelp4
 
 END SUBROUTINE vf_expost_l
+
+!------------------------------------------------------------------------------
+! Solve Ex-Ante Long-Term Value Functions
+!------------------------------------------------------------------------------
+SUBROUTINE vf_exante_l(wfun_bl,wfun_il,vfun_bl,vfun_il,wfun_b,wfun_i,pmap,bmap)
+
+    !Input  : V(pphi,varpphi,x), W_s^d(pphi,x)
+    !Output : W_l^d(pphi,x)
+
+    USE mod_globalvar
+    IMPLICIT NONE
+
+    INTEGER bmap, pmap
+    DOUBLE PRECISION, INTENT(in) :: wfun_b(pmap,bmap),wfun_i(pmap,bmap)
+    DOUBLE PRECISION, INTENT(in) :: vfun_bl(2,2,bmap),vfun_il(2,2,bmap)
+    DOUBLE PRECISION, INTENT(out) :: wfun_bl(2,bmap),wfun_il(2,bmap)
+    DOUBLE PRECISION vhelp1(bmap,2),vhelp2(bmap,2)
+
+    !W_l^bbeta(pphi,x)
+
+    vhelp1(:,1) = vfun_bl(1,2,:)-wfun_b(1,:) !HIV+,HIV- match
+    CALL zerov(vhelp1(:,2),bmap)
+
+    vhelp2(:,1) = vfun_bl(1,1,:)-wfun_b(1,:) !HIV+,HIV+ match
+    CALL zerov(vhelp2(:,2),bmap)
+
+    wfun_bl(1,:) = nnu_l*MAXVAL(vhelp1,2) + (1-nnu_l)*MAXVAL(vhelp2,2) + wfun_b(1,:)
+
+    vhelp1(:,1) = vfun_bl(2,2,:)-wfun_b(pmap,:) !HIV-,HIV- match
+    CALL zerov(vhelp1(:,2),bmap)
+
+    vhelp2(:,1) = vfun_bl(2,1,:)-wfun_b(pmap,:) !HIV-,HIV+ match
+    CALL zerov(vhelp2(:,2),bmap)
+
+    wfun_bl(2,:) = nnu_l*MAXVAL(vhelp1,2) + (1-nnu_l)*MAXVAL(vhelp2,2) + wfun_b(pmap,:)
+
+    !-----------------------------------------------------------------------------------
+    !W_l^iiota(pphi,x)
+
+    vhelp1(:,1) = vfun_il(1,2,:)-wfun_i(1,:) !HIV+,HIV- match
+    CALL zerov(vhelp1(:,2),bmap)
+
+    vhelp2(:,1) = vfun_il(1,1,:)-wfun_i(1,:) !HIV+,HIV+ match
+    CALL zerov(vhelp2(:,2),bmap)
+
+    wfun_il(1,:) = nnu_l*MAXVAL(vhelp1,2) + (1-nnu_l)*MAXVAL(vhelp2,2) + wfun_i(1,:)
+
+    vhelp1(:,1) = vfun_il(2,2,:)-wfun_i(pmap,:) !HIV-,HIV- match
+    CALL zerov(vhelp1(:,2),bmap)
+
+    vhelp2(:,1) = vfun_il(2,1,:)-wfun_i(pmap,:) !HIV-,HIV+ match
+    CALL zerov(vhelp2(:,2),bmap)
+
+    wfun_il(2,:) = nnu_l*MAXVAL(vhelp1,2) + (1-nnu_l)*MAXVAL(vhelp2,2) + wfun_i(pmap,:)
+
+
+END SUBROUTINE vf_exante_l
+
+!------------------------------------------------------------------------------
+! Solve Ex-Post Short-Term Value Functions
+!------------------------------------------------------------------------------
+
+!------------------------------------------------------------------------------
+! Solve Ex-Ante Short-Term Value Functions
+!------------------------------------------------------------------------------
 
 !------------------------------------------------------------------------------
 ! Solve Policy Functions using FOC and Corner Solution
@@ -165,89 +240,3 @@ SUBROUTINE solvepolicyfun_b(policy_b,vfun_a,vfun_b,smap)
 
 
 END SUBROUTINE solvepolicyfun_b
-
-!------------------------------------------------------------------------------
-! Abstinence Updating Rule
-!------------------------------------------------------------------------------
-SUBROUTINE PPhi_A(pphipr,pphi)
-
-    USE mod_globalvar
-    IMPLICIT NONE
-
-    DOUBLE PRECISION pphi,pphipr
-
-    pphipr = pphi*(1.0/(pphi+(1.0-pphi)*(1.0-aalpha)))
-
-END SUBROUTINE PPhi_A
-!------------------------------------------------------------------------------
-! Unprotected Sex Updating Rule
-!------------------------------------------------------------------------------
-SUBROUTINE PPhi_B(pphipr,pphi)
-
-    USE mod_globalvar
-    IMPLICIT NONE
-
-    DOUBLE PRECISION pphi,pphipr,h1,h2,h3
-
-    h1 = nnu_b + ggamma_b*(1.0-nnu_b)
-    h2 = pphi*(nnu_b + ggamma_b*(1.0-nnu_b) + (1.0-aalpha)*(1.0-ggamma_b)*(1.0-nnu_b))
-    h3 = (1.0-aalpha)*(1.0-pphi)
-
-    pphipr = pphi*(h1/(h2+h3))
-
-END SUBROUTINE PPhi_B
-!------------------------------------------------------------------------------
-! Protected Sex Updating Rule
-!------------------------------------------------------------------------------
-SUBROUTINE PPhi_P(pphipr,pphi)
-
-    USE mod_globalvar
-    IMPLICIT NONE
-
-    DOUBLE PRECISION pphi,pphipr,h1,h2,h3
-
-    h1 = nnu_p + ggamma_p*(1.0-nnu_p)
-    h2 = pphi*(nnu_p + ggamma_p*(1.0-nnu_p) + (1.0-aalpha)*(1.0-ggamma_p)*(1.0-nnu_p))
-    h3 = (1.0-aalpha)*(1.0-pphi)
-
-    pphipr = pphi*(h1/(h2+h3))
-
-END SUBROUTINE PPhi_P
-!------------------------------------------------------------------------------
-
-!------------------------------------------------------------------------------
-! Transition Related Probabilities
-!------------------------------------------------------------------------------
-SUBROUTINE PR_b(prob,pphi)
-
-    USE mod_globalvar
-    IMPLICIT NONE
-
-    DOUBLE PRECISION pphi,prob
-
-    prob = 1.0 - aalpha*((1.0-pphi)+(1.0-nnu_b)*(1.0-ggamma_b))
-
-END SUBROUTINE PR_b
-!------------------------------------------------------------------------------
-SUBROUTINE PR_p(prob,pphi)
-
-    USE mod_globalvar
-    IMPLICIT NONE
-
-    DOUBLE PRECISION pphi,prob
-
-    prob = 1.0 - aalpha*((1.0-pphi)+(1.0-nnu_p)*(1.0-ggamma_p))
-
-END SUBROUTINE PR_p
-!------------------------------------------------------------------------------
-SUBROUTINE PR_a(prob,pphi)
-
-    USE mod_globalvar
-    IMPLICIT NONE
-
-    DOUBLE PRECISION pphi,prob
-
-    prob = 1.0 - aalpha*(1.0-pphi)
-
-END SUBROUTINE PR_a
-!------------------------------------------------------------------------------
