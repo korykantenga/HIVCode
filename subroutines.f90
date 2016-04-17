@@ -76,6 +76,30 @@ SUBROUTINE PPhi_P(pphipr,pphi)
 
 END SUBROUTINE PPhi_P
 !------------------------------------------------------------------------------
+! Construct PPHI' GRID
+!------------------------------------------------------------------------------
+SUBROUTINE PPhiPRIME(pphia,pphib,pphip,pphigrid,pmap)
+
+    USE mod_globalvar
+
+    IMPLICIT NONE
+
+
+    INTEGER(4) pmap, iCount
+    DOUBLE PRECISION, INTENT(in) :: pphigrid(1:pmap)
+    DOUBLE PRECISION, INTENT(out):: pphia(1:pmap),pphib(1:pmap),pphip(1:pmap)
+
+    !$OMP PARALLEL DO
+    do iCount = 1,pmap
+        call PPhi_A(pphia(iCount),pphigrid(iCount))
+        call PPhi_B(pphib(iCount),pphigrid(iCount))
+        call PPhi_P(pphip(iCount),pphigrid(iCount))
+    end do
+    !$OMP END PARALLEL DO
+
+END SUBROUTINE PPhiPRIME
+!------------------------------------------------------------------------------
+
 
 !------------------------------------------------------------------------------
 ! Transition Related Probabilities

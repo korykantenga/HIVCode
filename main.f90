@@ -3,6 +3,11 @@ program main
     USE mod_globalvar
     implicit none
 
+    DOUBLE PRECISION bprob(50)
+    DOUBLE PRECISION vfun_bl(2,2,50),vfun_il(2,2,50),wfun_b(50,50),wfun_i(50,50)
+    DOUBLE PRECISION wfun_bl(2,50),wfun_il(2,50)
+    INTEGER iCount1,iCount2
+
     aalpha   = 0.025
     aalphapr = 0.01
 
@@ -37,6 +42,19 @@ program main
     mmu       = 0.3
     eepsilon  = 0.5
 
-    call solvevfun
+    call zerov(bprob,50)
+    bprob = bprob + (1.0/50.0)
+
+    do iCount1 = 1,50
+        do iCount2 = 1,50
+            wfun_b(iCount1,iCount2) = 0.0
+            wfun_i(iCount1,iCount2) = 0.0
+        end do
+    end do
+
+    call vf_expost_l(vfun_bl,vfun_il,wfun_b,wfun_i,50,50,bprob)
+
+    call vf_exante_l(wfun_bl,wfun_il,vfun_bl,vfun_il,wfun_b,wfun_i,50,50)
+    !print *,wfun_bl(2,:)
 
 end program main
