@@ -3,10 +3,21 @@ program main
     USE mod_globalvar
     implicit none
 
+    INTEGER bmap,pmap
     DOUBLE PRECISION bprob(50)
     DOUBLE PRECISION vfun_bl(2,2,50),vfun_il(2,2,50),wfun_b(50,50),wfun_i(50,50)
     DOUBLE PRECISION wfun_bl(2,50),wfun_il(2,50)
+    DOUBLE PRECISION vfa_b(50),vfa_i(50)
+    DOUBLE PRECISION vfb_b(50,50),vfb_i(50,50)
+    DOUBLE PRECISION vfp_b(50),vfp_i(50)
+    DOUBLE PRECISION pphigrid(50),bgrid(50)
     INTEGER iCount1,iCount2
+
+    bmap = 50
+    pmap = 50
+
+    CALL phiGrid(pphigrid,0.0,50)
+    CALL bprefGrid(bgrid,bprob,50)
 
     aalpha   = 0.025
     aalphapr = 0.01
@@ -42,9 +53,6 @@ program main
     mmu       = 0.3
     eepsilon  = 0.5
 
-    call zerov(bprob,50)
-    bprob = bprob + (1.0/50.0)
-
     do iCount1 = 1,50
         do iCount2 = 1,50
             wfun_b(iCount1,iCount2) = 0.0
@@ -55,6 +63,11 @@ program main
     call vf_expost_l(vfun_bl,vfun_il,wfun_b,wfun_i,50,50,bprob)
 
     call vf_exante_l(wfun_bl,wfun_il,vfun_bl,vfun_il,wfun_b,wfun_i,50,50)
-    !print *,wfun_bl(2,:)
+
+    call vf_expost_s(vfa_b,vfb_b,vfp_b,vfa_i,vfb_i,vfp_i, &
+        wfun_bl,wfun_il,wfun_b,wfun_i,pmap,bmap,bprob,pphigrid,bgrid)
+
+
+
 
 end program main

@@ -27,6 +27,54 @@ SUBROUTINE util(u,x)
 
 END SUBROUTINE util
 
+!------------------------------------------------------------------------------------------------------------
+! Construct Grid for Phi
+!------------------------------------------------------------------------------------------------------------
+SUBROUTINE phiGrid(xgrid,mval,ngrid)
+
+    implicit none
+
+    INTEGER(4) ngrid
+    INTEGER(4) nCount
+    DOUBLE PRECISION mval,ddiff
+    DOUBLE PRECISION xgrid(ngrid)
+
+    ddiff = 1.0/(REAL(ngrid)-1.0)
+
+    print *,ddiff
+
+    ! Construct Grid in 1-D
+    do nCount = 1,ngrid
+
+        xgrid(nCount) = mval + ddiff*(REAL(nCount)-1.0)
+    end do
+
+    xgrid(ngrid) = 1.0
+
+END SUBROUTINE phiGrid
+
+!------------------------------------------------------------------------------------------------------------
+! Construct Grids for Preference for Unprotected Sex
+!------------------------------------------------------------------------------------------------------------
+SUBROUTINE bprefGrid(bgrid,bprob,ngrid)
+
+    implicit none
+
+    INTEGER(4) ngrid
+    INTEGER(4) nCount
+    DOUBLE PRECISION bgrid(ngrid), bprob(ngrid)
+
+    ! Uniform Grid
+    do nCount = 1,ngrid
+        bgrid(nCount) = 7.5 + 0.05*(REAL(nCount)-1.0)
+    end do
+
+    ! Uniform Probability
+    CALL zerov(bprob,ngrid)
+    bprob = bprob + (1.0/real(ngrid))
+
+
+END SUBROUTINE bprefGrid
 
 !------------------------------------------------------------------------------
 ! Abstinence Updating Rule
@@ -116,7 +164,7 @@ SUBROUTINE PR_b(prob,pphi)
 END SUBROUTINE PR_b
 !------------------------------------------------------------------------------
 SUBROUTINE PR_p(prob,pphi)
-!Prob(No Aids Symptoms|Protected Sex)
+    !Prob(No Aids Symptoms|Protected Sex)
     USE mod_globalvar
     IMPLICIT NONE
 
@@ -147,15 +195,14 @@ SUBROUTINE LinInterp (n,x,y,ni,xi,yi)
     !extrapolates out of range
     IMPLICIT NONE
     INTEGER, INTENT(in)        :: n,ni
-    real(8), INTENT(in)    :: x(:),y(:),xi(:)
-    real(8), INTENT(out)    :: yi(:)
+    real(8), INTENT(in)    :: x(n),y(n),xi(ni)
+    real(8), INTENT(out)    :: yi(ni)
     real(8), DIMENSION(ni)    :: xL,xH,yL,yH
     INTEGER                    :: i,locL(ni)
 
-
     DO i = 1,ni
 
-        LocL(i) = MAXLOC(x,1,MASK=xi(i)>x)
+        locL(i) = MAXLOC(x,1,MASK=xi(i)>x)
 
         IF (xi(i)<=x(1)) THEN
             LocL(i) = 1
@@ -178,49 +225,49 @@ SUBROUTINE LinInterp (n,x,y,ni,xi,yi)
 END SUBROUTINE LinInterp
 
 
-    SUBROUTINE BiLinInterp1(nx,x,ny,y,f,xi,yi,fi)
-        !this does linear interpolation of f(x,y) at points (xi,yi)
-        !requires x to be sorted in ascending order
-        !
-        !extrapolates out of range
-        IMPLICIT NONE
-        INTEGER, INTENT(in)        :: nx,ny
-        real(8), INTENT(in)    :: x(:),y(:),f(:,:),xi,yi
-        real(8), INTENT(out)    :: fi
-        real(8)                :: xL,xH,yL,yH,fLL,fHH,fLH,fHL,dxdy
-        INTEGER                    :: xlocL,ylocL
+SUBROUTINE BiLinInterp1(nx,x,ny,y,f,xi,yi,fi)
+    !this does linear interpolation of f(x,y) at points (xi,yi)
+    !requires x to be sorted in ascending order
+    !
+    !extrapolates out of range
+    IMPLICIT NONE
+    INTEGER, INTENT(in)        :: nx,ny
+    real(8), INTENT(in)    :: x(:),y(:),f(:,:),xi,yi
+    real(8), INTENT(out)    :: fi
+    real(8)                :: xL,xH,yL,yH,fLL,fHH,fLH,fHL,dxdy
+    INTEGER                    :: xlocL,ylocL
 
-        xlocL = MAXLOC(x,1,MASK=xi>x)
-        ylocL = MAXLOC(y,1,MASK=yi>y)
+    xlocL = MAXLOC(x,1,MASK=xi>x)
+    ylocL = MAXLOC(y,1,MASK=yi>y)
 
-        IF (xi<=x(1)) THEN
-            xlocL = 1
-        END IF
+    IF (xi<=x(1)) THEN
+        xlocL = 1
+    END IF
 
-        IF (xLocL>=nx) THEN
-            xLocL = nx-1
-        END IF
+    IF (xLocL>=nx) THEN
+        xLocL = nx-1
+    END IF
 
-        IF (yi<=y(1)) THEN
-            ylocL = 1
-        END IF
+    IF (yi<=y(1)) THEN
+        ylocL = 1
+    END IF
 
-        IF (yLocL>=ny) THEN
-            yLocL = ny-1
-        END IF
+    IF (yLocL>=ny) THEN
+        yLocL = ny-1
+    END IF
 
-        xL  = x(xlocL)
-        xH  = x(xlocL +1)
-        yL  = y(ylocL)
-        yH  = y(ylocL +1)
-        fLL = f(xlocL,ylocL)
-        fLH = f(xlocL,ylocL+1)
-        fHL = f(xlocL+1,ylocL)
-        fHH = f(xlocL+1,ylocL+1)
+    xL  = x(xlocL)
+    xH  = x(xlocL +1)
+    yL  = y(ylocL)
+    yH  = y(ylocL +1)
+    fLL = f(xlocL,ylocL)
+    fLH = f(xlocL,ylocL+1)
+    fHL = f(xlocL+1,ylocL)
+    fHH = f(xlocL+1,ylocL+1)
 
-        dxdy = (xH-xL)*(yH-yL)
-        fi = fLL*(xH-xi)*(yH-yi)/(dxdy) + fHL*(xi-xL)*(yH-yi)/(dxdy) + fLH*(xH-xi)*(yi-yL)/(dxdy) + fHH*(xi-xL)*(yi-yL)/(dxdy)
+    dxdy = (xH-xL)*(yH-yL)
+    fi = fLL*(xH-xi)*(yH-yi)/(dxdy) + fHL*(xi-xL)*(yH-yi)/(dxdy) + fLH*(xH-xi)*(yi-yL)/(dxdy) + fHH*(xi-xL)*(yi-yL)/(dxdy)
 
 
-    END SUBROUTINE BiLinInterp1
+END SUBROUTINE BiLinInterp1
 
