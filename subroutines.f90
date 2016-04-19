@@ -41,8 +41,6 @@ SUBROUTINE phiGrid(xgrid,mval,ngrid)
 
     ddiff = 1.0/(REAL(ngrid)-1.0)
 
-    print *,ddiff
-
     ! Construct Grid in 1-D
     do nCount = 1,ngrid
 

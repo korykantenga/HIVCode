@@ -11,17 +11,45 @@ SUBROUTINE solvevfun
 
     !Solve for Ex-Post Long-Term Value Functions given W_s^bbeta(pphi,x), W_s^iiota(pphi,x)
 
+    !-------------------------
+    !Value Functions
+    !-------------------------
+
+    !-----------------
     !Ex-Post LT
+    !-----------------
     !call vf_expost_l(vfun_bl,vfun_il,wfun_b,wfun_i,pmap,bmap,bprob)
 
+    !-----------------
     !Ex-Ante LT
+    !-----------------
     !call vf_exante_l(wfun_bl,wfun_il,vfun_bl,vfun_il,wfun_b,wfun_i,pmap,bmap)
 
+    !-----------------
     !Ex-Post ST
+    !-----------------
     !call vf_expost_s(vfa_b,vfb_b,vfp_b,vfa_i,vfb_i,vfp_i, &
     !                 wfun_bl,wfun_il,wfun_b,wfun_i,pmap,bmap,bprob,pphigrid,bgrid)
 
+    !-------------------------
     !Policy Functions
+    !-------------------------
+    !-----------------
+    !Protected, Old
+    !-----------------
+    !call solvepolicyfun_p(policyp_bbeta,vfa_b,vfp_b,pmap)
+    !-----------------
+    !Protected, Young
+    !-----------------
+    !call solvepolicyfun_p(policyp_iiota,vfa_i,vfp_i,pmap)
+    !-----------------
+    !Unprotected, Old
+    !-----------------
+    !call vec2VF(vecfun_b,vfb_b,pmap,bmap)
+    !call solvepolicyfun_b(policy_b,vfa_b,vecfun_b,pmap*bmap)
+    !-----------------
+    !Unprotected, Young
+    !-----------------
 
     !Ex-Ante ST
 
@@ -336,62 +364,99 @@ END SUBROUTINE vf_expost_s
 ! Solve Policy Functions using FOC and Corner Solution
 !------------------------------------------------------------------------------
 !--------------------------------
-! Protected Sex Policy Function
+! Vectorize Value Function
 !--------------------------------
-SUBROUTINE solvepolicyfun_p(policy_p,vfun_a,vfun_p,smap)
-    !Input: Vectorized Value Functions
+SUBROUTINE vec1VF(vecVF,vfun,dim1,dim2)
+
+    INTEGER(4) dim1,dim2,ic1,xc
+    DOUBLE PRECISION vecVF(dim1*dim2),vfun(dim1)
+
+    xc = 1
+    do ic1 = 1,dim1
+        do ic2 = 1,dim2
+            vecVF(xc) = vfun(ic1)
+            xc = xc + 1
+        end do
+    end do
+
+END SUBROUTINE vec1VF
+!--------------------------------
+SUBROUTINE vec2VF(vecVF,vfun,dim1,dim2)
+
+    INTEGER(4) dim1,dim2, ic1,ic2,xc
+    DOUBLE PRECISION vecVF(dim1*dim2),vfun(dim1,dim2)
+
+    xc = 1
+    do ic1 = 1,dim1
+        do ic2 = 1,dim2
+            vecVF(xc) = vfun(ic1,ic2)
+            xc = xc + 1
+        end do
+    end do
+
+END SUBROUTINE vec2VF
+
+!--------------------------------
+
+
+SUBROUTINE solvepolicyfun(policy_p,policy_b,vfun_a,vfun_b,vfun_p,smap)
+
 
     USE mod_globalvar
     IMPLICIT NONE
 
-    INTEGER smap
-    DOUBLE PRECISION, INTENT(in) :: vfun_a(smap),vfun_p(smap)
-    DOUBLE PRECISION, INTENT(out) :: policy_p(smap)
-    DOUBLE PRECISION vhelp(smap,2),phelp1(smap),phelp2(smap)
-    DOUBLE PRECISION ppower
+    INTEGER smap, ix
+    DOUBLE PRECISION, INTENT(in) :: vfun_a(smap),vfun_p(smap),vfun_b(smap)
+    DOUBLE PRECISION, INTENT(out) :: policy_p(smap),policy_b(smap)
+    DOUBLE PRECISION phelp1,phelp2,help1(smap),help2(smap)
+    DOUBLE PRECISION ppower,llambda(smap),constant,aa,bb,cc,discrm
 
-    ppower = 1.0/kkappa_p
+    ppower   = 1.0/kkappa
+    constant = 1.0/(oomega_p*oomega_b*(kkappa+1.0))
 
-    vhelp(:,1) = vfun_p - vfun_a
-    CALL zerov(vhelp(:,2),smap)
+    !Binding Constraint
 
-    phelp1 = MAXVAL(vhelp,2)
+    !Interior Solution and Binding Constraint
+    do ix = 1,smap
 
-    phelp2 = (1.0/(oomega_p*(kkappa_p+1.0)))*(phelp1**ppower)
+        aa = constant
+        bb = constant*(vfun_p(ix) - vfun_a(ix) + vfun_b(ix) - vfun_a(ix))
+        cc = (vfun_p(ix)-vfun_a(ix))*(vfun_b(ix)-vfun_a(ix)) - 1.0
+        discrm = (bb**2) - 4*aa*cc
+        llambda(ix) = (bb - sqrt(discrm))/(2.0*constant)
+        print *, llambda(ix)
 
-    policy_p = phelp2/(1.0+phelp2)
+        if (llambda(ix).GT.0.0) then
 
-
-END SUBROUTINE solvepolicyfun_p
-!--------------------------------
-! Unrotected Sex Policy Function
-!--------------------------------
-SUBROUTINE solvepolicyfun_b(policy_b,vfun_a,vfun_b,smap)
-    !Input: Vectorized Value Functions
-
-    USE mod_globalvar
-    IMPLICIT NONE
-
-    INTEGER smap
-    DOUBLE PRECISION, INTENT(in) :: vfun_a(smap),vfun_b(smap)
-    DOUBLE PRECISION, INTENT(out) :: policy_b(smap)
-    DOUBLE PRECISION vhelp(smap,2),phelp1(smap),phelp2(smap)
-    DOUBLE PRECISION ppower
-
-    ppower = 1.0/kkappa_b
-
-    vhelp(:,1) = vfun_b - vfun_a
-    CALL zerov(vhelp(:,2),smap)
-
-    phelp1 = MAXVAL(vhelp,2)
-
-    phelp2 = (1.0/(oomega_b*(kkappa_b+1.0)))*(phelp1**ppower)
-
-    policy_b = phelp2/(1.0+phelp2)
+            help1(ix) = (vfun_p(ix) - vfun_a(ix) - llambda(ix))
+            help2(ix) = (vfun_b(ix) - vfun_a(ix) - llambda(ix))
+            help1(ix) = (help1(ix)/(oomega_p*(kkappa+1.0)))**ppower
+            help2(ix) = (help2(ix)/(oomega_b*(kkappa+1.0)))**ppower
+            help1(ix) = help1(ix)/(1.0+help1(ix))
+            help2(ix) = help2(ix)/(1.0+help2(ix))
 
 
-END SUBROUTINE solvepolicyfun_b
+        else
 
+            phelp1 = MAX(vfun_p(ix) - vfun_a(ix),0.0)
+            phelp2 = (1.0/(oomega_p*(kkappa + 1.0)))*(phelp1**ppower)
+
+            policy_p(ix) = phelp2/(1.0+phelp2)
+
+            phelp1 = MAX(vfun_b(ix) - vfun_a(ix),0.0)
+            phelp2 = (1.0/(oomega_b*(kkappa + 1.0)))*(phelp1**ppower)
+
+            policy_b(ix) = phelp2/(1.0+phelp2)
+
+        end if
+    end do
+
+            print *, help1
+            print *, help2
+
+
+
+END SUBROUTINE solvepolicyfun
 
 !------------------------------------------------------------------------------
 ! Solve Ex-Ante Short-Term Value Functions

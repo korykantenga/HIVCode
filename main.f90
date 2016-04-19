@@ -11,6 +11,11 @@ program main
     DOUBLE PRECISION vfb_b(50,50),vfb_i(50,50)
     DOUBLE PRECISION vfp_b(50),vfp_i(50)
     DOUBLE PRECISION pphigrid(50),bgrid(50)
+
+    DOUBLE PRECISION vecfun_b(50*50),vecfun_p(50*50),vecfun_a(50*50)
+    DOUBLE PRECISION policyb_bbeta(50*50),policyp_bbeta(50*50)
+
+
     INTEGER iCount1,iCount2
 
     bmap = 50
@@ -37,22 +42,21 @@ program main
     xxi      = 0.03
     qincome  = 500.0
     mcost    = 100.0
-    ppref_o  = 9.0
+    ppref_o  = 8.0
     ppref_y  = 6.5
     lpref_o  = 8.0
     lpref_y  = 7.0
 
     AAIDS    = 5.0
 
-    oomega_p = 0.5
-    kkappa_p  = 0.2
-
+    oomega_p = 0.49
     oomega_b = 0.5
-    kkappa_b = 0.2
+    kkappa   = 0.2
 
     mmu       = 0.3
     eepsilon  = 0.5
 
+    !Initialise W_s^bbeta(pphi,x),W_s^iiota(pphi,x)
     do iCount1 = 1,50
         do iCount2 = 1,50
             wfun_b(iCount1,iCount2) = 0.0
@@ -60,14 +64,16 @@ program main
         end do
     end do
 
-    call vf_expost_l(vfun_bl,vfun_il,wfun_b,wfun_i,50,50,bprob)
-
-    call vf_exante_l(wfun_bl,wfun_il,vfun_bl,vfun_il,wfun_b,wfun_i,50,50)
-
+    !Updating Value Functions
+    call vf_expost_l(vfun_bl,vfun_il,wfun_b,wfun_i,pmap,bmap,bprob)
+    call vf_exante_l(wfun_bl,wfun_il,vfun_bl,vfun_il,wfun_b,wfun_i,pmap,bmap)
     call vf_expost_s(vfa_b,vfb_b,vfp_b,vfa_i,vfb_i,vfp_i, &
         wfun_bl,wfun_il,wfun_b,wfun_i,pmap,bmap,bprob,pphigrid,bgrid)
 
+    call vec2VF(vecfun_b,vfb_b,pmap,bmap)
+    call vec1VF(vecfun_a,vfa_b,pmap,bmap)
+    call vec1VF(vecfun_p,vfp_b,pmap,bmap)
 
-
+    call solvepolicyfun(policyp_bbeta,policyb_bbeta,vecfun_a,vecfun_b,vecfun_p,pmap*bmap)
 
 end program main

@@ -33,9 +33,8 @@ MODULE mod_globalvar
     DOUBLE PRECISION ddelta2  ! Exogenous death rate for AIDS
 
     DOUBLE PRECISION oomega_p ! Cost scale parameter
-    DOUBLE PRECISION kkappa_p ! Cost exponential parameter
     DOUBLE PRECISION oomega_b ! Cost scale parameter
-    DOUBLE PRECISION kkappa_b ! Cost exponential parameter
+    DOUBLE PRECISION kkappa   ! Cost exponential parameter
 
     DOUBLE PRECISION AAIDS    ! Continuation value in AIDS stages
 
